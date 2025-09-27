@@ -1,6 +1,6 @@
 {
   "name": "mcp-framework-nuclio",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "type": "module",
   "description": "Nuclio-focused MCP framework (programmatic config, batch + SSE skeleton)",
