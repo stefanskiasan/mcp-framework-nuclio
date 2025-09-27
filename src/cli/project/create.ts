@@ -44,8 +44,7 @@ ${opts.tenants ? `
 async function resolveTenant({ id }) {
   // Example: statically generate a virtual MCP based on id
   return {
-    server: { name: \
-      \\`mcp-${name}-\\${id}\\`, version: '0.1.0', description: 'Tenant-scoped MCP', vendor: 'Your Company' },
+    server: { name: 'mcp-${name}-' + id, version: '0.1.0', description: 'Tenant-scoped MCP', vendor: 'Your Company' },
     transport: { mode: 'http-stream' },
     // You can return tenant-specific tools/prompts/resources arrays, or leave empty to use project defaults in dist/*
     tools: [], prompts: [], resources: []
@@ -71,7 +70,7 @@ export default class ExampleTool extends MCPTool<Input> {
   schema = { message: { type: z.string(), description: 'Message to echo' } };
   async execute(input: Input, ctx: ToolContext) {
     const who = ctx.claims?.email || ctx.claims?.preferred_username || 'anonymous';
-    return `Echo: ${input.message} (by ${who})`;
+    return 'Echo: ' + input.message + ' (by ' + who + ')';
   }
 }
 `;
