@@ -1,0 +1,29 @@
+{
+  "name": "mcp-framework-nuclio",
+  "version": "0.0.1",
+  "private": false,
+  "type": "module",
+  "description": "Nuclio-focused MCP framework (programmatic config, batch + SSE skeleton)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "mfn": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -w -p tsconfig.json"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "zod": "^3.23.8",
+    "jose": "^5.9.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.24",
+    "@types/jose": "^4.1.3"
+  }
+}
