@@ -1,5 +1,8 @@
 # mcp-framework-nuclio
 
+[![npm version](https://img.shields.io/npm/v/mcp-framework-nuclio.svg)](https://www.npmjs.com/package/mcp-framework-nuclio)
+[![npm downloads](https://img.shields.io/npm/dm/mcp-framework-nuclio.svg)](https://www.npmjs.com/package/mcp-framework-nuclio)
+
 Nuclio‑fokussiertes MCP‑Framework ohne Redis. Konfiguration erfolgt ausschließlich programmatisch im Code (keine `.env`‑Pflicht). Enthält Planung in `planning/` und eine lauffähige Implementierung.
 
 ## Features
