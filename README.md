@@ -119,6 +119,40 @@ auth.jwt({ secret: 'hmac-secret', algorithms: ['HS256'] });
 auth.keycloak({ issuer: 'https://kc/realms/acme', audience: ['client-id'], jwksUri?: string, algorithms?: ['RS256'], leeway?: 60 });
 auth.dynamic((req) => /* return one of oben */);
 ```
+#### Auth – Details & Beispiele
+1) API‑Key
+```bash
+curl -H 'X-API-Key: my-secret-key' ...
+```
+```ts
+auth.apiKey({ headerName: 'X-API-Key', keys: ['my-secret-key'] })
+```
+2) JWT (HMAC)
+```bash
+curl -H 'Authorization: Bearer <jwt>' ...
+```
+```ts
+auth.jwt({ secret: 'use-secret-manager', algorithms: ['HS256'] })
+```
+3) Keycloak (OIDC/JWKS)
+```bash
+curl -H 'Authorization: Bearer <access_token_von_keycloak>' ...
+```
+```ts
+auth.keycloak({
+  issuer: 'https://auth.example.com/realms/my',
+  audience: ['mcp-client-id'],
+  // optional: jwksUri (sonst Discovery), algorithms: ['RS256'], leeway: 60
+})
+```
+4) Dynamic (pro Request)
+```ts
+auth.dynamic((req) => req.headers['x-internal'] ? auth.apiKey({ keys: ['k'] }) : auth.none())
+```
+Hinweise:
+- Headername kann via `headerName` gesetzt werden (API‑Key/JWT).
+- `requireBearer` ist bei JWT/Keycloak standardmäßig aktiv.
+- Verifizierte Claims stehen Tools in `ToolContext.claims` zur Verfügung.
 
 ### Dynamische Tenants
 ```ts
@@ -162,6 +196,36 @@ export default class EchoTool extends MCPTool<Input> {
 ```
 - `ToolContext`: `{ sessionId?, tenantId?, headers: Record<string,string>, claims? }`
 - Rückgabe kann `ToolContent[]` (z. B. `{ type:'text', text }`) oder beliebig sein (wird in Text serialisiert)
+
+#### Tool‑Schemas mit zod (Pflicht/Optional/Defaults/Enums/Arrays/Objekte)
+- Pflichtfelder: alles ohne `z.optional(...)` ist required und wird in `inputSchema.required` aufgenommen.
+- Optionale Felder: mit `z.optional(...)` sind nicht required; `z.default(...)` setzt Defaults beim Parsen.
+- Enums validieren: `z.enum(['fast','safe'])` wird zur Laufzeit geprüft. Wenn Clients die Enum‑Werte im `tools/list` sehen sollen, überschreiben Sie `inputSchema`:
+  ```ts
+  import { MCPTool, ToolContext } from 'mcp-framework-nuclio';
+  import { z } from 'zod';
+
+  export default class ModeTool extends MCPTool<{ mode: 'fast'|'safe' }>{
+    name = 'mode_tool';
+    description = 'Select a mode';
+    schema = { mode: { type: z.enum(['fast','safe']), description: 'Execution mode' } };
+    get inputSchema(){
+      const base = super.inputSchema as any;
+      base.properties.mode.enum = ['fast','safe'];
+      return base;
+    }
+    async execute(i: { mode: 'fast'|'safe' }, ctx: ToolContext){
+      return { content: [{ type: 'text', text: `Mode set to ${i.mode}` }] };
+    }
+  }
+  ```
+- Arrays/Objekte: `z.array(z.string())`, `z.object({...})` funktionieren; der ausgelieferte Typ ist `array`/`object`, Details validiert zod.
+- Unions: `z.union([z.string(), z.number()])` werden geparst; bei Bedarf exaktes JSON‑Schema durch Override von `inputSchema` wie oben ergänzen.
+
+#### Registrierung & Discovery der Tools
+- Default‑Klassen unter `src/tools/*.ts` anlegen (`export default class ...`).
+- Build kompiliert nach `dist/tools/*.js`; der Loader findet alle Default‑Exporte automatisch.
+- Pro Tenant können Sie `tools` in `tenants.resolve(ctx)` explizit bereitstellen und so die Projekt‑Defaults überschreiben.
 
 ### Prompts
 ```ts
